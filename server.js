@@ -5,4 +5,8 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 require('dotenv').config();
 
+// app
+const app = express()
 
+// db
+mongoose.connect(process.env.MONGO_URL)
