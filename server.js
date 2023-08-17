@@ -9,4 +9,20 @@ require('dotenv').config();
 const app = express()
 
 // db
-mongoose.connect(process.env.MONGO_URL)
+mongoose
+    .connect(process.env.MONGO_URL, {
+        useNewUrlParser: true,
+        useCreateIndex: true,
+        useFindAndModify: true,
+    })
+    .then(() => console.log("DB CONNECTED"))
+    .catch((err) => console.log("DB CONNECTION ERR", err));
+
+// middlewares
+app.use(morgan("dev"));
+app.use(bodyParser.json({ limit: "2mb"}));
+app.use(cors());
+
+// route
+
+
