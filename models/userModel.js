@@ -4,7 +4,9 @@ const { ObjectId } = mongoose.Schema;
 
 const userSchema = new mongoose.Schema(
     {
-        name: String,
+        name: { 
+            type: String,
+        },
         email: {
             type: String,
             required: true,
@@ -18,7 +20,9 @@ const userSchema = new mongoose.Schema(
             type: Array,
             default: [],
         },
-        address: String,
+        address: {
+            type: String,
+        },
         // wishList: [{ type: ObjectId, ref: "Product"}],
     },
     { timestamps: true}
