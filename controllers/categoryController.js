@@ -1,4 +1,4 @@
-const Category = require("../models/category");
+const Category = require("../models/categoryModel");
 const slugify = require("slugify");
 
 exports.create = async (req, res) => {
