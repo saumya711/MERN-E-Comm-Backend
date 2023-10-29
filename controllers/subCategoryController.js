@@ -17,8 +17,8 @@ exports.getAllSubCategories = async (req, res) => {
 };
 
 exports.GetSubCategory = async(req, res) => {
-    let SubCategory = await SubCategory.findOne({ slug: req.params.slug}).exec();
-    res.json(SubCategory);
+    let subCategory = await SubCategory.findOne({ slug: req.params.slug}).exec();
+    res.json(subCategory);
 };
 
 exports.updateSubCategory = async(req, res) => {
