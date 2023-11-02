@@ -15,3 +15,8 @@ exports.createProduct = async (req, res) => {
         });
     }
 };
+
+exports.getAllProducts = async (req, res) => {
+    let products = await Product.find({});
+    res.json(products);
+}
