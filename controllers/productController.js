@@ -7,8 +7,11 @@ exports.createProduct = async (req, res) => {
         req.body.slug = slugify(req.body.title);
         const newProduct = await new Product(req.body).save();
         res.json(newProduct);
-    } catch (error) {
+    } catch (err) {
         console.log(err);
-        res.status(400).send("Create Product Failed");
+        //res.status(400).send("Create Product Failed");
+        res.status(400).json({
+            err: err.message
+        });
     }
 };
