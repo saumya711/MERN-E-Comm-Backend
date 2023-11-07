@@ -8,6 +8,6 @@ const { authCheck, adminCheck } = require("../middlewares/authMiddleware");
 const { uploadImages, removeImage } = require("../controllers/cloudinaryController");
 
 router.post("/upload-images", authCheck, adminCheck, uploadImages);
-router.delete("/delete-images", authCheck, adminCheck, removeImage);
+router.post("/remove-images", authCheck, adminCheck, removeImage);
 
 module.exports = router;
