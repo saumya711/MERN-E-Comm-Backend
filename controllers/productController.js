@@ -26,12 +26,20 @@ exports.ProductList = async (req, res) => {
     res.json(products);
 }
 
-exports.deleteProduct = async () => {
+exports.deleteProduct = async (req, res) => {
     try {
        const deleted = await Product.findOneAndRemove({slug: req.params.slug}).exec();
        res.json(deleted);
     } catch (err) {
-       consol.log(err);
+       console.log(err);
        return res.status(400).send("Product Delete Failed");
     }
+}
+
+exports.getProduct = async (req, res) => {
+    const product = await Product.findOne({ slug: req.params.slug })
+        .populate('category')
+        .populate('subs')
+        .exec();
+    res.json(product);
 }
