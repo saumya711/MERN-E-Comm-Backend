@@ -25,3 +25,13 @@ exports.ProductList = async (req, res) => {
     .exec();
     res.json(products);
 }
+
+exports.deleteProduct = async () => {
+    try {
+       const deleted = await Product.findOneAndRemove({slug: req.params.slug}).exec();
+       res.json(deleted);
+    } catch (err) {
+       consol.log(err);
+       return res.status(400).send("Product Delete Failed");
+    }
+}
