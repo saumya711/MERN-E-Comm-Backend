@@ -62,16 +62,41 @@ exports.updateProduct = async (req, res) => {
     }
 }
 
+
+// WITHOUT PAGINATION
+// exports.productList = async (req, res) => {
+//     try {
+//         // createdAt/updatetAt, desc/asc, 3
+//         const { sort, order, limit} = req.body;
+//         const products = await Product.find({})
+//         .populate("category")
+//         .populate("subs")
+//         .sort([[sort, order]])
+//         .limit(limit)
+//         .exec();
+
+//         res.json(products);
+//     } catch (err) {
+//         console.log(err);
+//     }
+// }
+
+
+// WITH PAGINATION
 exports.productList = async (req, res) => {
     try {
         // createdAt/updatetAt, desc/asc, 3
-        const { sort, order, limit} = req.body;
+        const { sort, order, page} = req.body;
+        const currentPage = page || 1;
+        const perPage = 3;
+
         const products = await Product.find({})
-        .populate("category")
-        .populate("subs")
-        .sort([[sort, order]])
-        .limit(limit)
-        .exec();
+            .skip((currentPage - 1) * perPage)
+            .populate("category")
+            .populate("subs")
+            .sort([[sort, order]])
+            .limit(perPage)
+            .exec();
 
         res.json(products);
     } catch (err) {
