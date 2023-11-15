@@ -16,7 +16,7 @@ exports.createProduct = async (req, res) => {
     }
 };
 
-exports.AllProductList = async (req, res) => {
+exports.allProductList = async (req, res) => {
     let products = await Product.find({})
     .limit(parseInt(req.params.count))
     .populate('category')
@@ -77,4 +77,9 @@ exports.productList = async (req, res) => {
     } catch (err) {
         console.log(err);
     }
+}
+
+exports.productsCount = async (req, res) => {
+    let total = await Product.find({}).estimatedDocumentCount().exec();
+    res.json(total);
 }
