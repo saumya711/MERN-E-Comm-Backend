@@ -16,7 +16,7 @@ exports.createProduct = async (req, res) => {
     }
 };
 
-exports.ProductList = async (req, res) => {
+exports.AllProductList = async (req, res) => {
     let products = await Product.find({})
     .limit(parseInt(req.params.count))
     .populate('category')
@@ -59,5 +59,22 @@ exports.updateProduct = async (req, res) => {
         res.status(400).json({
             err: err.message
         });
+    }
+}
+
+exports.productList = async (req, res) => {
+    try {
+        // createdAt/updatetAt, desc/asc, 3
+        const { sort, order, limit} = req.body;
+        const products = await Product.find({})
+        .populate("category")
+        .populate("subs")
+        .sort([[sort, order]])
+        .limit(limit)
+        .exec();
+
+        res.json(products);
+    } catch (err) {
+        console.log(err);
     }
 }
