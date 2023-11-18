@@ -25,7 +25,7 @@ exports.allProductList = async (req, res) => {
     .sort([["createdAt", "desc"]])
     .exec();
     res.json(products);
-}
+};
 
 exports.deleteProduct = async (req, res) => {
     try {
@@ -35,7 +35,7 @@ exports.deleteProduct = async (req, res) => {
        console.log(err);
        return res.status(400).send("Product Delete Failed");
     }
-}
+};
 
 exports.getProduct = async (req, res) => {
     const product = await Product.findOne({ slug: req.params.slug })
@@ -43,7 +43,7 @@ exports.getProduct = async (req, res) => {
         .populate('subs')
         .exec();
     res.json(product);
-}
+};
 
 exports.updateProduct = async (req, res) => {
     try {
@@ -61,7 +61,7 @@ exports.updateProduct = async (req, res) => {
             err: err.message
         });
     }
-}
+};
 
 
 // WITHOUT PAGINATION
@@ -80,7 +80,7 @@ exports.updateProduct = async (req, res) => {
 //     } catch (err) {
 //         console.log(err);
 //     }
-// }
+// };
 
 
 // WITH PAGINATION
@@ -104,12 +104,12 @@ exports.productList = async (req, res) => {
     } catch (err) {
         console.log(err);
     }
-}
+};
 
 exports.productsCount = async (req, res) => {
     let total = await Product.find({}).estimatedDocumentCount().exec();
     res.json(total);
-}
+};
 
 exports.productStar = async (req, res) => {
     const product = await Product.findById(req.params.productId).exec();
@@ -119,8 +119,8 @@ exports.productStar = async (req, res) => {
     // who is updating?
     // check if currently logged in user have already added rating to this product?
     let existingRatingObject = product.ratings.find(
-        (ele) => ele.postedBy == user._id
-        // (ele) => ele.postedBy.toString() === user._id.toString()
+        //(ele) => ele.postedBy == user._id
+        (ele) => ele.postedBy.toString() === user._id.toString()
     );
 
     // if user haven't rating yet, push it
@@ -138,12 +138,28 @@ exports.productStar = async (req, res) => {
         // if user have already left rating, update it
         const ratingUpdated = await Product.updateOne(
             {
-                ratings: { $elemMatch: existingRatingObject},
+                ratings: { $elemMatch: existingRatingObject },
             },
-            { $set: { "ratings.$.star": star}},
+            { $set: { "ratings.$.star": star } },
             { new: true }
         ).exec();
         console.log("ratingUpdated", ratingUpdated);
         res.json(ratingUpdated);
     }
-}
+};
+
+exports.listRelated = async (req, res) => {
+    const product = await Product.findById(req.params.productId).exec();
+  
+    const related = await Product.find({
+      _id: { $ne: product._id },
+      category: product.category,
+    })
+      .limit(3)
+      .populate("category")
+      .populate("subs")
+      .populate("ratings.postedBy")
+      .exec();
+  
+    res.json(related);
+  };
