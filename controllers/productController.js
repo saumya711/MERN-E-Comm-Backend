@@ -158,7 +158,6 @@ exports.listRelated = async (req, res) => {
       .limit(3)
       .populate("category")
       .populate("subs")
-      .populate("ratings.postedBy")
       .exec();
   
     res.json(related);
