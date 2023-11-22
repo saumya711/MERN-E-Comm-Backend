@@ -185,6 +185,12 @@ exports.searchFilters = async (req, res) => {
         console.log("category ---->", category);
         await handleCategory(req,res, category);
     }
+
+    // ratings
+    if (stars) {
+        console.log("stars ---->", stars);
+        await handleRating(req,res, stars);
+    }
 }
 
 const handleQuery = async (req, res, searchQuery) => {
@@ -225,4 +231,30 @@ const handleCategory = async (req, res, category) => {
     } catch (err) {
         console.log(err);
     }
+}
+
+const handleRating = async (req, res, stars) => {
+    Product.aggregate([
+    {
+      $project: {
+        document: "$$ROOT",
+        // title: "$title",
+        floorAverage: {
+          $floor: { $avg: "$ratings.star"}, // 3.33      
+        },
+      },
+    },
+      { $match: {floorAverage: stars} }
+    ])
+    .limit(12)
+    exec((err, aggregates) => {
+      if(err) console.log("AGGREGATE ERROR", err);
+      Product.find({ _id: aggregates})
+      .populate('category', '_id name')
+      .populate('subs', '_id name')
+      .exec((err, products) => {
+        if (err) console.log("PRODUCT AGGREGATE ERROR", err);
+        res.json(products);
+      });
+    })
 }
