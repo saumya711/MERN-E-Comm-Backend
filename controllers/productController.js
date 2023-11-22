@@ -167,7 +167,7 @@ exports.listRelated = async (req, res) => {
 // SEARCH / FILTER
 
 exports.searchFilters = async (req, res) => {
-    const { searchQuery, price, category } = req.body;
+    const { searchQuery, price, category, stars, sub, shipping, brand, color } = req.body;
 
     if (searchQuery) {
         console.log("searchQuery ---->", searchQuery);
@@ -184,6 +184,36 @@ exports.searchFilters = async (req, res) => {
     if (category) {
         console.log("category ---->", category);
         await handleCategory(req,res, category);
+    }
+
+    // ratings
+    if (stars) {
+        console.log("stars ---->", stars);
+        await handleRating(req,res, stars);
+    }
+
+    // Sub-categories
+    if (sub) {
+        console.log("subs ---->", sub);
+        await handleSubCategory(req,res, sub);
+    }
+
+    // Shipping
+    if (shipping) {
+        console.log("shipping ---->", shipping);
+        await handleShipping(req,res, shipping);
+    }
+
+    // Brand
+    if (brand) {
+        console.log("brand ---->", brand);
+        await handleBrand(req,res, brand);
+    }
+
+    // Color
+    if (color) {
+        console.log("color ---->", color);
+        await handleColor(req,res, color);
     }
 }
 
@@ -217,6 +247,111 @@ const handlePrice = async (req, res, price) => {
 const handleCategory = async (req, res, category) => {
     try {
         let products = await Product.find({ category })
+        .populate('category', '_id name')
+        .populate('subs', '_id name')
+        .exec();
+
+        res.json(products);
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+// const handleRating = async (req, res, stars) => {
+//     Product.aggregate([
+//     {
+//       $project: {
+//         document: "$$ROOT",
+//         // title: "$title",
+//         floorAverage: {
+//           $floor: { $avg: "$ratings.star"}, // 3.33      
+//         },
+//       },
+//     },
+//       { $match: {floorAverage: stars} }
+//     ])
+//     .limit(12)
+//     .exec((err, aggregates) => {
+//       if (err) console.log("AGGREGATE ERROR", err);
+//       Product.find({ _id: aggregates})
+//       .populate('category', '_id name')
+//       .populate('subs', '_id name')
+//       .exec((err, products) => {
+//         if (err) console.log("PRODUCT AGGREGATE ERROR", err);
+//         res.json(products);
+//       });
+//     })
+// }
+
+const handleRating = async (req, res, stars) => {
+    try {
+        const aggregates = await Product.aggregate([
+            {
+                $project: {
+                    document: "$$ROOT",
+                    floorAverage: {
+                        $floor: { $avg: "$ratings.star" },
+                    },
+                },
+            },
+            { $match: { floorAverage: stars } },
+        ]).limit(12);
+
+        const productIds = aggregates.map((agg) => agg._id);
+
+        const products = await Product.find({ _id: { $in: productIds } })
+            .populate('category', '_id name')
+            .populate('subs', '_id name');
+
+        res.json(products);
+    } catch (err) {
+        console.log("Error:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+const handleSubCategory = async (req, res, sub) => {
+    try {
+        let products = await Product.find({ subs: sub })
+        .populate('category', '_id name')
+        .populate('subs', '_id name')
+        .exec();
+
+        res.json(products);
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const handleBrand = async (req, res, brand) => {
+    try {
+        let products = await Product.find({ brand })
+        .populate('category', '_id name')
+        .populate('subs', '_id name')
+        .exec();
+
+        res.json(products);
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const handleColor = async (req, res, color) => {
+    try {
+        let products = await Product.find({ color })
+        .populate('category', '_id name')
+        .populate('subs', '_id name')
+        .exec();
+
+        res.json(products);
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+const handleShipping = async (req, res, shipping) => {
+    try {
+        let products = await Product.find({ shipping })
         .populate('category', '_id name')
         .populate('subs', '_id name')
         .exec();
