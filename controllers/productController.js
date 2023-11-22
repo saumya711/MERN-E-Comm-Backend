@@ -167,7 +167,7 @@ exports.listRelated = async (req, res) => {
 // SEARCH / FILTER
 
 exports.searchFilters = async (req, res) => {
-    const { searchQuery, price, category } = req.body;
+    const { searchQuery, price, category, stars } = req.body;
 
     if (searchQuery) {
         console.log("searchQuery ---->", searchQuery);
@@ -233,28 +233,55 @@ const handleCategory = async (req, res, category) => {
     }
 }
 
+// const handleRating = async (req, res, stars) => {
+//     Product.aggregate([
+//     {
+//       $project: {
+//         document: "$$ROOT",
+//         // title: "$title",
+//         floorAverage: {
+//           $floor: { $avg: "$ratings.star"}, // 3.33      
+//         },
+//       },
+//     },
+//       { $match: {floorAverage: stars} }
+//     ])
+//     .limit(12)
+//     .exec((err, aggregates) => {
+//       if (err) console.log("AGGREGATE ERROR", err);
+//       Product.find({ _id: aggregates})
+//       .populate('category', '_id name')
+//       .populate('subs', '_id name')
+//       .exec((err, products) => {
+//         if (err) console.log("PRODUCT AGGREGATE ERROR", err);
+//         res.json(products);
+//       });
+//     })
+// }
+
 const handleRating = async (req, res, stars) => {
-    Product.aggregate([
-    {
-      $project: {
-        document: "$$ROOT",
-        // title: "$title",
-        floorAverage: {
-          $floor: { $avg: "$ratings.star"}, // 3.33      
-        },
-      },
-    },
-      { $match: {floorAverage: stars} }
-    ])
-    .limit(12)
-    exec((err, aggregates) => {
-      if(err) console.log("AGGREGATE ERROR", err);
-      Product.find({ _id: aggregates})
-      .populate('category', '_id name')
-      .populate('subs', '_id name')
-      .exec((err, products) => {
-        if (err) console.log("PRODUCT AGGREGATE ERROR", err);
+    try {
+        const aggregates = await Product.aggregate([
+            {
+                $project: {
+                    document: "$$ROOT",
+                    floorAverage: {
+                        $floor: { $avg: "$ratings.star" },
+                    },
+                },
+            },
+            { $match: { floorAverage: stars } },
+        ]).limit(12);
+
+        const productIds = aggregates.map((agg) => agg._id);
+
+        const products = await Product.find({ _id: { $in: productIds } })
+            .populate('category', '_id name')
+            .populate('subs', '_id name');
+
         res.json(products);
-      });
-    })
-}
+    } catch (err) {
+        console.log("Error:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
