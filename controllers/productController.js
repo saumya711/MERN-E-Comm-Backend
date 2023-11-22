@@ -167,7 +167,7 @@ exports.listRelated = async (req, res) => {
 // SEARCH / FILTER
 
 exports.searchFilters = async (req, res) => {
-    const { searchQuery, price, category, stars } = req.body;
+    const { searchQuery, price, category, stars, sub } = req.body;
 
     if (searchQuery) {
         console.log("searchQuery ---->", searchQuery);
@@ -190,6 +190,12 @@ exports.searchFilters = async (req, res) => {
     if (stars) {
         console.log("stars ---->", stars);
         await handleRating(req,res, stars);
+    }
+
+    // Sub-categories
+    if (sub) {
+        console.log("subs ---->", sub);
+        await handleSubCategory(req,res, sub);
     }
 }
 
@@ -285,3 +291,17 @@ const handleRating = async (req, res, stars) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+const handleSubCategory = async (req, res, sub) => {
+    try {
+        let products = await Product.find({ subs: sub })
+        .populate('category', '_id name')
+        .populate('subs', '_id name')
+        .exec();
+
+        res.json(products);
+    } catch (err) {
+        console.log(err);
+    }
+
+}
