@@ -14,7 +14,7 @@ exports.userCart = async (req, res) => {
   let cartExistBythisUser = await Cart.findOne({ orderBy: user._id }).exec();
 
   if (cartExistBythisUser) {
-    // cartExistBythisUser.remove();
+    // cartExistBythisUser.remove(); // not available remove()
     // console.log('removed old cart');
 
     // fixed error
