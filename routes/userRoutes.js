@@ -6,10 +6,11 @@ const router = express.Router();
 const { authCheck } = require("../middlewares/authMiddleware");
 
 // controller
-const { userCart } = require("../controllers/userController");
+const { userCart, getUserCart } = require("../controllers/userController");
 
 
 router.post("/user/cart", authCheck, userCart);
+router.get("/user/cart", authCheck, getUserCart);
 
 // router.get("/user", (req, res) => {
 //     res.json({
