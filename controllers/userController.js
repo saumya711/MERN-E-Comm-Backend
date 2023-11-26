@@ -14,8 +14,12 @@ exports.userCart = async (req, res) => {
   let cartExistBythisUser = await Cart.findOne({ orderBy: user._id }).exec();
 
   if (cartExistBythisUser) {
-    cartExistBythisUser.remove();
-    console.log('removed old cart');
+    // cartExistBythisUser.remove();
+    // console.log('removed old cart');
+
+    // fixed error
+    await Cart.deleteOne({ orderBy: user._id }).exec();
+    console.log('Removed old cart');
   }
 
   for (let i = 0; i < cart.length; i++) {
