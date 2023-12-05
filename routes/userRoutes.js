@@ -16,7 +16,8 @@ const {
     getUserOrders,
     addToWishlist,
     wishlist,
-    removeFromWishlist
+    removeFromWishlist,
+    createCashOrder
 } = require("../controllers/userController");
 
 
@@ -26,7 +27,8 @@ router.delete("/user/cart", authCheck, emptyCart); // empty cart
 router.post("/user/address", authCheck, saveAddress);
 
 // order
-router.post("/user/order", authCheck, createOrder);
+router.post("/user/order", authCheck, createOrder); // stripe
+router.post("/user/cash-order", authCheck, createCashOrder); // cod
 router.get("/user/orders", authCheck, getUserOrders);
 
 // coupon
