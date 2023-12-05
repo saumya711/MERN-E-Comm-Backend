@@ -3,6 +3,7 @@ const Product = require('../models/productModel');
 const Cart = require('../models/cartModel');
 const Coupon = require('../models/couponModel');
 const Order = require('../models/orderModel');
+const uniqueid = require("uniqueid");
 
 exports.userCart = async (req, res) => {
   // console.log(req.body); //{cart: []}
@@ -127,6 +128,46 @@ exports.createOrder = async (req, res) => {
 
   // decrement quantiyi, increment sold
   let bulkOption = products.map((item) => {
+    return {
+      updateOne: {
+        filter: { _id: item.product._id }, // IMPORTANT item.product
+        update: { $inc: { quantity: -item.count, sold: +item.count }},
+      },
+    };
+  });
+
+  let updated = await Product.bulkWrite(bulkOption, {});
+  console.log("PRODUCT QUANTITY-- AND SOLD++", updated);
+
+  console.log("NEW ORDER SAVED", newOrder);
+  res.json({ ok: true });
+}
+
+// COD 
+exports.createCashOrder = async (req, res) => {
+  const { COD } = req.body;
+  // if COD is true, create order with status of Cash On Delivery
+  if (!COD) return res.status(400).send("Create cash order failed");
+
+  const user = await User.findOne({ email: req.user.email }).exec();
+
+  let userCart = await Cart.findOne({ orderBy: user._id }).exec();
+
+  let newOrder = await new Order({
+    products: userCart.products,
+    paymentIntent: {
+      id: uniqueid(),
+      amount: userCart.cartTotal,
+      currency: "usd",
+      status: "Cash On Delivery",
+      created: Date.now(),
+      payment_method_types: ["cash"],
+    },
+    orderBy: user._id,
+  }).save();
+
+  // decrement quantiyi, increment sold
+  let bulkOption = userCart.products.map((item) => {
     return {
       updateOne: {
         filter: { _id: item.product._id }, // IMPORTANT item.product
