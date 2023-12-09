@@ -53,7 +53,7 @@ exports.userCart = async (req, res) => {
     orderBy: user._id,
   }).save();
 
-  console.log('new cart', newCart);
+  //console.log('new cart', newCart);
   res.json({ ok: true });
 }
 
@@ -87,7 +87,7 @@ exports.saveAddress = async (req, res) => {
 // Coupon
 exports.applyCouponToUserCart = async (req, res) => {
   const { coupon } = req.body;
-  console.log("COUPON", coupon);
+  // console.log("COUPON", coupon);
 
   const validCoupon = await Coupon.findOne({ name: coupon }).exec();
   if (validCoupon === null) {
@@ -95,7 +95,7 @@ exports.applyCouponToUserCart = async (req, res) => {
       err: "Invalid coupon",
     });
   }
-  console.log("VALID COUPON", validCoupon);
+  // console.log("VALID COUPON", validCoupon);
 
   const user = await User.findOne({ email: req.user.email }).exec();
 
