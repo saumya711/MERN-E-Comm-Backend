@@ -6,7 +6,7 @@ const router = express.Router();
 const { authCheck } = require("../middlewares/authMiddleware");
 
 // controller
-const { createPaymentIntent } = require("../controllers/stripeCOntroller");
+const { createPaymentIntent } = require("../controllers/stripeController");
 
 // routes
 router.post("/create-payment-intent", authCheck, createPaymentIntent);
